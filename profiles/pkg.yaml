@@ -13,3 +13,5 @@ finalize:
     to: /rootfs/profiles
   - from: /pkg/rock4cplus
     to: /rootfs/profiles
+  - from: /pkg/turing-rk1
+    to: /rootfs/profiles
