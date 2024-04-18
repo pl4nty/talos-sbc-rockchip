@@ -72,12 +72,12 @@ jobs:
           --overlay-name soquartz-cm4 --overlay-image ghcr.io/$USERNAME/sbc-rockchip:v1.7.0 \
           --system-extension-image ghcr.io/siderolabs/iscsi-tools:v0.1.4 \
           --system-extension-image ghcr.io/siderolabs/util-linux-tools:2.39.3
-      - name: Build turing-rk1 image
-        run: |
-          docker run --rm -t -v $PWD/_out:/out -v /dev:/dev --privileged ghcr.io/siderolabs/imager:v1.7.0-beta.1 metal --arch arm64 \
-          --overlay-name turing-rk1 --overlay-image ghcr.io/$USERNAME/sbc-rockchip:v1.7.0 \
-          --system-extension-image ghcr.io/siderolabs/iscsi-tools:v0.1.4 \
-          --system-extension-image ghcr.io/siderolabs/util-linux-tools:2.39.3
+      # - name: Build turing-rk1 image
+      #   run: |
+      #     docker run --rm -t -v $PWD/_out:/out -v /dev:/dev --privileged ghcr.io/nberlee/imager:v1.7.0 metal --arch arm64 \
+      #     --overlay-name turing-rk1 --overlay-image ghcr.io/$USERNAME/sbc-rockchip:v1.7.0 \
+      #     --system-extension-image ghcr.io/siderolabs/iscsi-tools:v0.1.4 \
+      #     --system-extension-image ghcr.io/siderolabs/util-linux-tools:2.39.3
       - name: Upload images
         uses: actions/upload-artifact@v2
         with:

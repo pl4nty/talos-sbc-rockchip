@@ -9,6 +9,7 @@ dependencies:
   - stage: rockpi4c
   - stage: rock4cplus
   - stage: soquartz-cm4
+  - stage: turing-rk1
   - stage: profiles
   - stage: u-boot-nanopi-r4s
     platform: linux/arm64
@@ -23,6 +24,8 @@ dependencies:
   - stage: u-boot-rock4cplus
     platform: linux/arm64
   - stage: u-boot-soquartz-cm4
+    platform: linux/arm64
+  - stage: u-boot-turing-rk1
     platform: linux/arm64
   - image: "{{ .BUILD_ARG_PKGS_PREFIX }}/kernel:{{ .BUILD_ARG_PKGS }}"
     platform: linux/arm64
@@ -52,6 +55,10 @@ dependencies:
     platform: linux/arm64
     from: /dtb/rockchip/rk3566-soquartz-cm4.dtb
     to: /rootfs/artifacts/arm64/dtb/rockchip/rk3566-soquartz-cm4.dtb
+  - image: "ghcr.io/nberlee/kernel:v1.6.0-32-g3bfb6b8"
+    platform: linux/arm64
+    from: /dtb/rockchip/rk3588-turing-rk1.dtb
+    to: /rootfs/artifacts/arm64/dtb/rockchip/rk3588-turing-rk1.dtb
 finalize:
   - from: /rootfs
     to: /
