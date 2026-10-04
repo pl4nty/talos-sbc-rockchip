@@ -15,6 +15,12 @@ steps:
         destination: u-boot.tar.bz2
         sha256: "{{ .uboot_soquartz_sha256 }}"
         sha512: "{{ .uboot_soquartz_sha512 }}"
+      # DEBUG (test-only): 920 MHz DDR blob (rkbin v1.26) instead of 1056 MHz v1.23, to test
+      # whether sustained memory writes hang the board because DDR is unstable at 1056 MHz.
+      - url: https://raw.githubusercontent.com/rockchip-linux/rkbin/3e288fe814e059dd06833495f845cab04ac20a5c/bin/rk35/rk3566_ddr_920MHz_v1.26.bin
+        destination: rk3566_ddr_920MHz_v1.26.bin
+        sha256: 36c9483b5a83760527a6be8372a0f09ec2b2b38b97e253d5c3f864d329b13c74
+        sha512: 437a4bdefad407b231ac39777ca5a9633c094f417903e406c89710760a1144c287bdef5fd556ab8ecf3f424557159e6c29051890ae04d0433a52cfb9556ad63d
     env:
         SOURCE_DATE_EPOCH: {{ .BUILD_ARG_SOURCE_DATE_EPOCH }}
     prepare:
@@ -59,7 +65,7 @@ steps:
       - |
         make -j $(nproc) HOSTLDLIBS_mkimage="-lssl -lcrypto" \
           BL31=/libs/arm-trusted-firmware/rk3568/bl31.elf \
-          ROCKCHIP_TPL=/libs/rkbin/rk3566_ddr_1056MHz_v1.23.bin
+          ROCKCHIP_TPL=rk3566_ddr_920MHz_v1.26.bin
     install:
       - |
         mkdir -p /rootfs/artifacts/arm64/u-boot/soquartz-cm4
