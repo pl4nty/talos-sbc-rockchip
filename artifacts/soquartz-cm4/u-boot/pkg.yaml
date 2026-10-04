@@ -32,15 +32,13 @@ steps:
       - |
         printf '# CONFIG_EFI_VARIABLE_FILE_STORE is not set\nCONFIG_EFI_VARIABLE_NO_STORE=y\n' >> .config
       # DEBUG (test-only, drop before upstream): info-level logging, efidebug,
-      # memtest/rng commands, and a 60 s hardware watchdog so hard hangs self-reset.
+      # memtest/rng commands, and the DW watchdog armed by raw register writes
+      # (~89 s at 24 MHz, unfed by U-Boot; Linux dw_wdt takes it over) so hangs self-reset.
+      # The DM designware_wdt driver fails to probe on rk3566 here, so it isn't used.
       - |
         cat >> .config <<'EOF'
-        CONFIG_WDT=y
-        CONFIG_WATCHDOG=y
-        CONFIG_WATCHDOG_AUTOSTART=y
-        CONFIG_WATCHDOG_TIMEOUT_MSECS=60000
-        CONFIG_DESIGNWARE_WATCHDOG=y
-        CONFIG_CMD_WDT=y
+        CONFIG_USE_PREBOOT=y
+        CONFIG_PREBOOT="mw.l 0xfe600004 0xff; mw.l 0xfe600000 0x1; mw.l 0xfe60000c 0x76; echo WDT: armed dw-wdt by register, ~89s, unfed"
         CONFIG_CMD_MEMTEST=y
         CONFIG_CMD_RNG=y
         CONFIG_LOG=y
@@ -52,7 +50,7 @@ steps:
         EOF
       - |
         make olddefconfig
-        grep -E '^.*CONFIG_(WDT|WATCHDOG_AUTOSTART|DESIGNWARE_WATCHDOG|CMD_MEMTEST|CMD_RNG|EFI_VARIABLE_FILE_STORE|EFI_VARIABLE_NO_STORE|TOOLS_MKEFICAPSULE|LMB_LIMIT_DMA_BELOW_RAM_TOP|LOG|CMD_LOG|CMD_EFIDEBUG)' .config
+        grep -E '^.*CONFIG_(USE_PREBOOT|PREBOOT|CMD_MEMTEST|CMD_RNG|EFI_VARIABLE_FILE_STORE|EFI_VARIABLE_NO_STORE|TOOLS_MKEFICAPSULE|LMB_LIMIT_DMA_BELOW_RAM_TOP|LOG|CMD_LOG|CMD_EFIDEBUG)' .config
     build:
       - |
         make -j $(nproc) HOSTLDLIBS_mkimage="-lssl -lcrypto" \

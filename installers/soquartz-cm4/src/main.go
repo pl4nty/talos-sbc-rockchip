@@ -40,6 +40,10 @@ func (i *soquartzCM4) GetOptions(_ context.Context, extra soquartzCM4ExtraOption
 		KernelArgs: []string{
 			"console=tty0",
 			"console=ttyS2,1500000n8",
+			// DEBUG (test-only, drop before upstream): early serial output and verbose EFI stub.
+			"earlycon=uart8250,mmio32,0xfe660000",
+			"efi=debug",
+			"ignore_loglevel",
 			"sysctl.kernel.kexec_load_disabled=1",
 			"talos.dashboard.disabled=1",
 		},
