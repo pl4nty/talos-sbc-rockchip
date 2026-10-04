@@ -31,29 +31,29 @@ steps:
       # to test whether efi_mgr hangs in the FAT write on first boot.
       - |
         printf '# CONFIG_EFI_VARIABLE_FILE_STORE is not set\nCONFIG_EFI_VARIABLE_NO_STORE=y\n' >> .config
-      # DEBUG (test-only, drop before upstream): info-level logging, efidebug,
-      # memtest/rng commands, and the DW watchdog armed by raw register writes
-      # (~89 s at 24 MHz, unfed by U-Boot; Linux dw_wdt takes it over) so hangs self-reset.
-      # The DM designware_wdt driver fails to probe on rk3566 here, so it isn't used.
-      # Preboot ungates PCLK/TCLK_WDT_NS (CRU CLKGATE_CON26 bits 13/14), deasserts
-      # SRST_P/T_WDT_NS (SOFTRST_CON26 bits 5/6), and dumps the counter twice so the
-      # boot log shows whether it is running.
+      # DEBUG (test-only, drop before upstream): efidebug, memtest/rng, EFI hello/selftest,
+      # and EFI loader debug traces compiled in (-DDEBUG) but only printed after
+      # "log level 7", so the last EFI boot service call before a hang is visible.
+      # The preboot watchdog arm is gone: a watchdog reset on this board stops after
+      # the DDR blob ("out") and never reaches SPL, so it can't recover a hang.
+      - |
+        sed -i '1i ccflags-y += -DDEBUG' lib/efi_loader/Makefile
       - |
         cat >> .config <<'EOF'
-        CONFIG_USE_PREBOOT=y
-        CONFIG_PREBOOT="mw.l 0xfdd20368 0x60000000; mw.l 0xfdd20468 0x00600000; md.l 0xfdd20368 1; md.l 0xfdd20468 1; md.l 0xfdd200dc 1; mw.l 0xfe600004 0xff; mw.l 0xfe600000 0x1; mw.l 0xfe60000c 0x76; md.l 0xfe600000 4; sleep 1; md.l 0xfe600000 4; echo WDT: armed v2 (clk ungated, rst deasserted), ~89s, unfed"
         CONFIG_CMD_MEMTEST=y
         CONFIG_CMD_RNG=y
         CONFIG_LOG=y
-        CONFIG_LOG_MAX_LEVEL=6
+        CONFIG_LOG_MAX_LEVEL=7
         CONFIG_LOG_DEFAULT_LEVEL=6
         CONFIG_LOG_CONSOLE=y
         CONFIG_CMD_LOG=y
         CONFIG_CMD_EFIDEBUG=y
+        CONFIG_CMD_BOOTEFI_HELLO=y
+        CONFIG_CMD_BOOTEFI_SELFTEST=y
         EOF
       - |
         make olddefconfig
-        grep -E '^.*CONFIG_(USE_PREBOOT|PREBOOT|CMD_MEMTEST|CMD_RNG|EFI_VARIABLE_FILE_STORE|EFI_VARIABLE_NO_STORE|TOOLS_MKEFICAPSULE|LMB_LIMIT_DMA_BELOW_RAM_TOP|LOG|CMD_LOG|CMD_EFIDEBUG)' .config
+        grep -E '^.*CONFIG_(USE_PREBOOT|PREBOOT|CMD_BOOTEFI_HELLO|CMD_BOOTEFI_SELFTEST|CMD_MEMTEST|CMD_RNG|EFI_VARIABLE_FILE_STORE|EFI_VARIABLE_NO_STORE|TOOLS_MKEFICAPSULE|LMB_LIMIT_DMA_BELOW_RAM_TOP|LOG|CMD_LOG|CMD_EFIDEBUG)' .config
     build:
       - |
         make -j $(nproc) HOSTLDLIBS_mkimage="-lssl -lcrypto" \
