@@ -23,6 +23,19 @@ steps:
         tar xf u-boot.tar.bz2 --strip-components=1
       - |
         make soquartz-cm4-rk3566_defconfig
+      # DEBUG (test-only, drop before upstream): verbose U-Boot proper logging to find
+      # where it hangs after "DRAM:" on the 8 GB module.
+      - |
+        cat >> .config <<'EOF'
+        CONFIG_LOG=y
+        CONFIG_LOG_MAX_LEVEL=7
+        CONFIG_LOG_DEFAULT_LEVEL=7
+        CONFIG_LOG_CONSOLE=y
+        CONFIG_LOG_DEBUG=y
+        CONFIG_DEBUG_UART_ANNOUNCE=y
+        EOF
+        make olddefconfig
+        grep -E '^CONFIG_(LOG|DEBUG_UART)' .config
     build:
       - |
         make -j $(nproc) HOSTLDLIBS_mkimage="-lssl -lcrypto" \
