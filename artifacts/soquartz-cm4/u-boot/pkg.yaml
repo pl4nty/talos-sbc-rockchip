@@ -32,12 +32,13 @@ steps:
       - |
         printf '# CONFIG_EFI_VARIABLE_FILE_STORE is not set\nCONFIG_EFI_VARIABLE_NO_STORE=y\n' >> .config
       # DEBUG (test-only, drop before upstream): efidebug, memtest/rng, EFI hello/selftest,
-      # and EFI loader debug traces compiled in (-DDEBUG) but only printed after
-      # "log level 7", so the last EFI boot service call before a hang is visible.
+      # and EFI loader debug traces (-DDEBUG -DLOG_DEBUG: with CONFIG_LOG, debug() is
+      # compiled out without LOG_DEBUG, and is then always printed), so the last
+      # EFI boot service call before a hang is visible.
       # The preboot watchdog arm is gone: a watchdog reset on this board stops after
       # the DDR blob ("out") and never reaches SPL, so it can't recover a hang.
       - |
-        sed -i '1i ccflags-y += -DDEBUG' lib/efi_loader/Makefile
+        sed -i '1i ccflags-y += -DDEBUG -DLOG_DEBUG' lib/efi_loader/Makefile
       - |
         cat >> .config <<'EOF'
         CONFIG_CMD_MEMTEST=y
