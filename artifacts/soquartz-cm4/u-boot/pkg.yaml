@@ -11,19 +11,16 @@ dependencies:
   - stage: rkbin-rk3566
 steps:
   - sources:
-      - url: https://ftp.denx.de/pub/u-boot/u-boot-{{ .uboot_version }}.tar.bz2
+      - url: https://ftp.denx.de/pub/u-boot/u-boot-{{ .uboot_soquartz_version }}.tar.bz2
         destination: u-boot.tar.bz2
-        sha256: "{{ .uboot_sha256 }}"
-        sha512: "{{ .uboot_sha512 }}"
+        sha256: "{{ .uboot_soquartz_sha256 }}"
+        sha512: "{{ .uboot_soquartz_sha512 }}"
     env:
         SOURCE_DATE_EPOCH: {{ .BUILD_ARG_SOURCE_DATE_EPOCH }}
     prepare:
       # soquartz-cm4-rk3566
       - |
         tar xf u-boot.tar.bz2 --strip-components=1
-
-        # 8 GB modules: bounce EFI disk I/O below 4 GiB (dw_mmc IDMAC is 32-bit). Pending upstream.
-        patch -p1 < /pkg/patches/0001-rockchip-rk3568-imply-EFI_LOADER_BOUNCE_BUFFER.patch
       - |
         make soquartz-cm4-rk3566_defconfig
       # DEBUG (test-only, drop before upstream): info-level logging and efidebug.
@@ -38,7 +35,7 @@ steps:
         EOF
       - |
         make olddefconfig
-        grep -E '^CONFIG_(EFI_LOADER_BOUNCE|LOG|CMD_LOG|CMD_EFIDEBUG)' .config
+        grep -E '^CONFIG_(LMB_LIMIT_DMA_BELOW_RAM_TOP|LOG|CMD_LOG|CMD_EFIDEBUG)' .config
     build:
       - |
         make -j $(nproc) HOSTLDLIBS_mkimage="-lssl -lcrypto" \

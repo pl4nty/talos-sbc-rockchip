@@ -13,6 +13,11 @@ vars:
   uboot_sha256: b60d5865cefdbc75da8da4156c56c458e00de75a49b80c1a2e58a96e30ad0d54
   uboot_sha512: b1f988a497c77da60faf89ed33034e9ae58c4cd7f208e5ce451f1372e13540a66289bee4f08ca2f68f105d73f1ceae058b1f713db549edbcc885d9c66bdc4f8b
 
+  # SOQuartz 8 GB needs >= 2026.07 (8b154abd keeps EFI/DMA allocations below 4 GiB on Rockchip)
+  uboot_soquartz_version: 2026.07
+  uboot_soquartz_sha256: FILLED_BY_CI
+  uboot_soquartz_sha512: FILLED_BY_CI
+
   # renovate: datasource=git-refs versioning=git depName=https://github.com/rockchip-linux/rkbin.git
   rkbin_ref: 74213af1e952c4683d2e35952507133b61394862
   rkbin_sha256: b565faeab846950262c07e6debbd6519ea9e7f34943dbb305b9cea6b1026e11a
