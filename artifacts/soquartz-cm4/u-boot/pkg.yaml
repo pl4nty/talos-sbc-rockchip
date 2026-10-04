@@ -27,6 +27,10 @@ steps:
       # which the toolchain's gnutls doesn't provide.
       - |
         echo '# CONFIG_TOOLS_MKEFICAPSULE is not set' >> .config
+      # DEBUG (test-only): don't persist EFI variables to ubootefi.var on the ESP,
+      # to test whether efi_mgr hangs in the FAT write on first boot.
+      - |
+        printf '# CONFIG_EFI_VARIABLE_FILE_STORE is not set\nCONFIG_EFI_VARIABLE_NO_STORE=y\n' >> .config
       # DEBUG (test-only, drop before upstream): info-level logging and efidebug.
       - |
         cat >> .config <<'EOF'
@@ -39,7 +43,7 @@ steps:
         EOF
       - |
         make olddefconfig
-        grep -E '^.*CONFIG_(TOOLS_MKEFICAPSULE|LMB_LIMIT_DMA_BELOW_RAM_TOP|LOG|CMD_LOG|CMD_EFIDEBUG)' .config
+        grep -E '^.*CONFIG_(EFI_VARIABLE_FILE_STORE|EFI_VARIABLE_NO_STORE|TOOLS_MKEFICAPSULE|LMB_LIMIT_DMA_BELOW_RAM_TOP|LOG|CMD_LOG|CMD_EFIDEBUG)' .config
     build:
       - |
         make -j $(nproc) HOSTLDLIBS_mkimage="-lssl -lcrypto" \
