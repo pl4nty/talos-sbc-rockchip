@@ -1,0 +1,35 @@
+From: Tom Plant <tom@tplant.com.au>
+Subject: [PATCH] rockchip: rk3568: imply EFI_LOADER_BOUNCE_BUFFER
+
+The RK3566/RK3568 SD/MMC controllers (dw_mmc) only support 32-bit
+IDMAC addresses. On boards with more than 4 GiB of RAM, U-Boot adds
+the DRAM above 4 GiB as a second bank and the EFI loader allocates
+buffers there. EFI block I/O then programs the DMA with a truncated
+address, so reads land in the wrong place and the boot hangs at
+random, either in the boot manager while reading the ESP or in GRUB
+while loading the kernel.
+
+Seen on an 8 GiB Pine64 SOQuartz booting from microSD: efi_mgr hung
+in 2 of 3 boots and GRUB hung loading the kernel, while "load" to
+addresses below 4 GiB always worked.
+
+Imply EFI_LOADER_BOUNCE_BUFFER so that EFI disk I/O goes through a
+bounce buffer below 4 GiB.
+
+---
+ arch/arm/mach-rockchip/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/arm/mach-rockchip/Kconfig b/arch/arm/mach-rockchip/Kconfig
+--- a/arch/arm/mach-rockchip/Kconfig
++++ b/arch/arm/mach-rockchip/Kconfig
+@@ -383,6 +383,7 @@ config ROCKCHIP_RK3568
+ 	select DM_RESET
+ 	imply BOOTSTD_FULL
+ 	imply DM_RNG
++	imply EFI_LOADER_BOUNCE_BUFFER if EFI_LOADER
+ 	imply MISC_INIT_R
+ 	imply MMC_HS200_SUPPORT if MMC_SDHCI_ROCKCHIP
+ 	imply OF_LIBFDT_OVERLAY
+-- 
+2.43.0

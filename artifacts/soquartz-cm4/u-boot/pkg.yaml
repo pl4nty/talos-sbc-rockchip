@@ -21,16 +21,11 @@ steps:
       # soquartz-cm4-rk3566
       - |
         tar xf u-boot.tar.bz2 --strip-components=1
+
+        # 8 GB modules: bounce EFI disk I/O below 4 GiB (dw_mmc IDMAC is 32-bit). Pending upstream.
+        patch -p1 < /pkg/patches/0001-rockchip-rk3568-imply-EFI_LOADER_BOUNCE_BUFFER.patch
       - |
         make soquartz-cm4-rk3566_defconfig
-      # The RK3566 SD/eMMC controllers (dw_mmc) only do 32-bit IDMAC. On 8 GB
-      # modules the EFI loader allocates buffers above 4 GiB, so EFI block I/O
-      # DMAs to a truncated address and U-Boot or GRUB hangs. Bounce EFI disk
-      # I/O through a buffer below 4 GiB.
-      - |
-        cat >> .config <<'EOF'
-        CONFIG_EFI_LOADER_BOUNCE_BUFFER=y
-        EOF
       # DEBUG (test-only, drop before upstream): info-level logging and efidebug.
       - |
         cat >> .config <<'EOF'
