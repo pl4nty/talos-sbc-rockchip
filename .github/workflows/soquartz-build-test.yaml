@@ -1,0 +1,19 @@
+# Test-only: build the whole overlay (every board's U-Boot) for feat/soquartz-cm4. Not for upstream.
+name: soquartz-build-test
+'on':
+  push:
+    branches:
+      - ci/soquartz-cm4-build
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: docker/setup-buildx-action@v3
+      - name: Build sbc-rockchip overlay (all boards)
+        run: make sbc-rockchip PLATFORM=linux/arm64 PROGRESS=plain
