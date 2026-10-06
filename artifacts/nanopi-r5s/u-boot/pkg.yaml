@@ -10,7 +10,7 @@ dependencies:
   - stage: rkbin-rk3568
 steps:
   - sources:
-      - url: https://ftp.denx.de/pub/u-boot/u-boot-{{ .uboot_version }}.tar.bz2
+      - url: https://github.com/u-boot/u-boot/archive/refs/tags/v{{ .uboot_version }}.tar.gz
         destination: u-boot.tar.bz2
         sha256: "{{ .uboot_sha256 }}"
         sha512: "{{ .uboot_sha512 }}"
