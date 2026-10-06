@@ -23,6 +23,12 @@ steps:
         tar xf u-boot.tar.bz2 --strip-components=1
       - |
         make soquartz-cm4-rk3566_defconfig
+      # mkeficapsule (host tool, unused here) needs gnutls PKCS#11 since v2026.07,
+      # which the toolchain's gnutls doesn't provide.
+      - |
+        echo '# CONFIG_TOOLS_MKEFICAPSULE is not set' >> .config
+        make olddefconfig
+        grep -E 'CONFIG_(TOOLS_MKEFICAPSULE|LMB_LIMIT_DMA_BELOW_RAM_TOP)' .config || true
     build:
       - |
         make -j $(nproc) HOSTLDLIBS_mkimage="-lssl -lcrypto" \
