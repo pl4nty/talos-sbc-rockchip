@@ -21,6 +21,8 @@ steps:
         tar xf u-boot.tar.bz2 --strip-components=1
       - |
         make rock64-rk3328_defconfig
+        # mkeficapsule needs GnuTLS with PKCS#11 since v2026.07, which tools doesn't provide
+        echo '# CONFIG_TOOLS_MKEFICAPSULE is not set' >> .config
     build:
       - |
         make -j $(nproc) HOSTLDLIBS_mkimage="-lssl -lcrypto" BL31=/libs/arm-trusted-firmware/rk3328/bl31.elf
